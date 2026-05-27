@@ -1,0 +1,5 @@
+zone,lat,lon,launch_score,category,terminal_access,curb_control,traffic_complexity,pedestrian_conflict,staging_feasibility,rider_clarity,notes
+Terminal 2,37.6175,-122.3867,82.8,Strong,85,75,73,75,80,85,Balanced accessibility and congestion. Late night conditions reduce congestion and improve AV feasibility.
+Terminal 3,37.6192,-122.3848,76.2,Moderate,90,65,68,70,70,80,High passenger demand but more curb complexity. Late night conditions reduce congestion and improve AV feasibility.
+International Terminal,37.6156,-122.3925,67.4,Complex,88,55,58,60,60,65,Complex international arrivals flow. Late night conditions reduce congestion and improve AV feasibility.
+Garage G,37.6206,-122.3907,91.5,Recommended,75,92,96,95,95,78,Best AV launch candidate due to curb control and staging feasibility. Late night conditions reduce congestion and improve AV feasibility.
