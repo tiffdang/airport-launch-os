@@ -71,16 +71,16 @@ scenario_eta = {
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
 with kpi1:
-    st.metric("Avg Launch Score", avg_launch_score)
+    st.metric("Launch Feasibility Score", avg_launch_score)
 
 with kpi2:
-    st.metric("Avg ETA", scenario_eta.get(scenario, "N/A"))
+    st.metric("Estimated Pickup Time", scenario_eta.get(scenario, "N/A"))
 
 with kpi3:
-    st.metric("Highest Risk Zone", highest_risk_zone)
+    st.metric("Most Constrained Zone", highest_risk_zone)
 
 with kpi4:
-    st.metric("Congestion Level", scenario.replace("_", " ").title())
+    st.metric("Operating Scenario", scenario.replace("_", " ").title())
 
 # MAIN LAYOUT
 col1, col2 = st.columns([2, 1])
@@ -133,8 +133,52 @@ with col2:
             value=top_zone["zone"],
             delta=f"{top_zone['adjusted_score']}/100"
         )
+
+        recommended_score = top_zone["adjusted_score"]
+
+        if recommended_score >= 85:
+            readiness = "🟢 Ready"
+        elif recommended_score >= 75:
+            readiness = "🟡 Conditional"
+        else:
+            readiness = "🔴 Not Recommended"
+
+        st.metric("Launch Readiness", readiness)
+        st.markdown("### Why This Zone?")
+
+        zone_rationale = {
+            "Garage G": [
+                "Dedicated staging feasibility",
+                "Lower pickup congestion exposure",
+                "Direct ingress routing",
+                "Operational separation from terminal congestion",
+            ],
+            "Terminal 2": [
+                "Balanced terminal access",
+                "Moderate curb control",
+                "Good rider pickup clarity",
+                "Useful fallback during Garage G constraints",
+            ],
+            "Terminal 3": [
+                "Strong terminal access",
+                "High passenger demand",
+                "Useful when curb pressure is manageable",
+                "Requires monitoring for pedestrian conflict",
+            ],
+            "International Terminal": [
+                "High demand coverage",
+                "Useful for international arrival flows",
+                "Requires stronger curb management",
+                "Higher operational complexity",
+            ],
+        }
+
+        for reason in zone_rationale.get(top_zone["zone"], ["No rationale available"]):
+                st.write(f"✓ {reason}")
+
+
         
-st.markdown("### Operational Recommendation")
+st.markdown("### Recommended Operational Actions")
 
 recommendations = {
     "normal": """
@@ -213,6 +257,7 @@ st.dataframe(
     scenario_comparison,
     use_container_width=True
 )
+
 st.markdown("---")
 st.markdown("### Operational Summary")
 
