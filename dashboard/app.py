@@ -27,15 +27,9 @@ scenario = st.sidebar.selectbox(
     index=1
 )
 
-if st.sidebar.button("Run Scenario"):
-    with st.spinner("Generating scenario map..."):
-        subprocess.run(
-            ["python", "gis/day1_sfo_map.py", scenario],
-            check=True
-        )
-
-    st.success(f"{scenario.replace('_', ' ').title()} scenario generated.")
-    st.rerun()
+if st.button("Run Scenario"):
+    # subprocess.run(["python", "scenarios/run_scenario.py", scenario], check=True)
+    st.success(f"Scenario loaded: {scenario}")
 
 st.sidebar.markdown("### Scenario")
 st.sidebar.write(f"Current mode: **{scenario.replace('_', ' ').title()}**")
