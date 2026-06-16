@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 import os
-import subprocess
 
 st.set_page_config(
     page_title="Airport Launch OS",
@@ -43,17 +42,6 @@ rider_weight = st.sidebar.slider("Rider Clarity", 0.0, 1.0, 0.25, 0.05)
 scores_path = "outputs/sfo_zone_scores.csv"
 map_path = "outputs/sfo_day1_airport_map.html"
 
-# KPI ROW
-if os.path.exists(scores_path):
-    kpi_df = pd.read_csv(scores_path)
-
-    avg_launch_score = round(kpi_df["launch_score"].mean(), 1)
-    highest_risk_zone = kpi_df.sort_values("launch_score").iloc[0]["zone"]
-
-else:
-    avg_launch_score = "N/A"
-    highest_risk_zone = "N/A"
-
 scenario_eta = {
     "normal": "5.0 min",
     "peak_hour": "7.2 min",
@@ -61,6 +49,70 @@ scenario_eta = {
     "event_surge": "8.5 min",
     "construction": "9.0 min",
 }
+
+scenario_multipliers = {
+    "normal": {
+        "traffic_complexity": 1.00,
+        "curb_control": 1.00,
+        "staging_feasibility": 1.00,
+        "rider_clarity": 1.00,
+    },
+    "peak_hour": {
+        "traffic_complexity": 0.75,
+        "curb_control": 0.85,
+        "staging_feasibility": 0.95,
+        "rider_clarity": 0.90,
+    },
+    "late_night": {
+        "traffic_complexity": 1.15,
+        "curb_control": 1.05,
+        "staging_feasibility": 0.90,
+        "rider_clarity": 0.85,
+    },
+    "event_surge": {
+        "traffic_complexity": 0.65,
+        "curb_control": 0.75,
+        "staging_feasibility": 0.80,
+        "rider_clarity": 0.70,
+    },
+    "construction": {
+        "traffic_complexity": 0.55,
+        "curb_control": 0.70,
+        "staging_feasibility": 0.75,
+        "rider_clarity": 0.80,
+    },
+}
+
+# KPI ROW
+if os.path.exists(scores_path):
+    kpi_df = pd.read_csv(scores_path)
+
+    multipliers = scenario_multipliers.get(scenario, scenario_multipliers["normal"]
+    )
+
+    for col in ["curb_control", "traffic_complexity", "staging_feasibility", "rider_clarity"]:
+        kpi_df[col] = kpi_df[col] * multipliers[col]
+
+    kpi_df["scenario_score"] = (
+    kpi_df["curb_control"] +
+    kpi_df["traffic_complexity"] +
+    kpi_df["staging_feasibility"] +
+    kpi_df["rider_clarity"]
+) / 4
+
+    avg_launch_score = round(
+        kpi_df["scenario_score"].mean(),
+        1
+    )
+
+    highest_risk_zone = (
+        kpi_df.sort_values("scenario_score")
+        .iloc[0]["zone"]
+    )
+
+else:
+    avg_launch_score = "N/A"
+    highest_risk_zone = "N/A"
 
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
